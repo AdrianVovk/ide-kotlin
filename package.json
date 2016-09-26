@@ -1,9 +1,9 @@
 {
-  "name": "language-kotlin",
+  "name": "language-kotlin-ide",
   "main": "./lib/language-kotlin",
   "version": "0.4.0",
   "description": "Adds syntax highlighting to Kotlin files in Atom",
-  "repository": "https://github.com/alexmt/atom-kotlin-language",
+  "repository": "https://github.com/AdrianVovk/language-kotlin-ide",
   "license": "MIT",
   "engines": {
     "atom": ">0.50.0"
