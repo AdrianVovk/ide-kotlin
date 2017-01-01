@@ -6,7 +6,7 @@ fileTypes: [
 ]
 patterns: [
   { include: "#statements" } # Code
-  { include: "comments-and-doc" } # Comments and documentation
+  { include: "#comments" } # Comments and documentation
   { include: "#imports" }
   { include: "#packages" }
 ]
@@ -22,18 +22,104 @@ repository:
       { include: "#getters-and-setters" }
       { include: "#expressions" }
     ]
-  "comments-and-doc":
+  comments:
     patterns: [
-      { include: "#comments" }
+      { # Multi-line comment
+        begin: "/\\*(?!\\*)"
+        captures:
+          0:
+            name: "punctuation.definition.comment.kotlin"
+        end: "\\*/"
+        name: "comment.block.kotlin"
+      }
+      { # Single line comments
+        captures:
+          1:
+            name: "comment.line.double-slash.kotlin"
+          2:
+            name: "punctuation.definition.comment.kotlin"
+        match: "\\s*((//).*$\\n?)"
+      }
+      { # KDoc
+        begin: "/\\*\\*"
+        end: "\\*/"
+        name: "comment.kdoc.kotlin"
+        patterns: [
+          { # Tags
+            begin: ".*(?=\\@)"
+            end: "$"
+            patterns: [
+              { # Tags with a single identifier, then documentation
+                begin: "\\@(param|property|throws|exception|sample|see)(\\s+(?=\\w*))?"
+                end: "\\s+" # End at the next word break
+                name: "entity.name.tag.kdoc.tag.kotlin"
+                contentName: "entity.name.section.kdoc.identifier.kotlin"
+              }
+              { # Supress tag, with no documentation or identifiers
+                begin: "\\@suppress"
+                end: "$"
+                name: "entity.name.tag.kdoc.tag.kotlin"
+                contentName: "invalid.illegal.kdoc.tag.kotlin"
+              }
+              { # Other Valid tags
+                begin: "\\@(return|constructor|receiver|author|since)"
+                end: "\\b"
+                name: "entity.name.tag.kdoc.tag.kotlin"
+              }
+              { # Invalid tags
+                match: "\\@\\w+\\b"
+                name: "invalid.illegal.kdoc.tag.kotlin"
+              }
+            ]
+          }
+          { # Markdown features
+            begin: "\\*"
+            end: "$"
+            patterns: [
+              { # Links
+                begin: "\\["
+                end: "\\]"
+                name: "keyword.control.kdoc.link.kotlin"
+                contentName: "none.kdoc.link.content.kotlin"
+                patterns: [ include: "#types" ]
+              }
+              { # Bold
+                begin: "((\\*\\*)|(\\_\\_))"
+                end: "((\\*\\*)|(\\_\\_))"
+                name: "markup.bold.kdoc.formatting.kotlin"
+              }
+              { # Italics
+                match: "[\\_\\*][^\\_\\*]*[\\_\\*]"
+                name: "markup.italic.kdoc.formatting.kotlin"
+              }
+              { # Inline Code
+                match: "\\`[^`]*\\`"
+                name: "markup.raw.kdoc.inline.kotlin"
+              }
+              { # Code block
+                begin: "\\s{2,}\\b"
+                end: "$"
+                name: "markup.raw.kdoc.block.kotlin"
+              }
+              { # Headings
+                begin: "\\#"
+                end: "$"
+                name: "markup.heading.kdoc.formatting.kotlin"
+              }
+              { # Block quotes
+                begin: ">"
+                end: "$"
+                name: "markup.quote.kdoc.formatting.kotlin"
+              }
+            ]
+          }
+        ]
+      }
     ]
 
   # Main code types
-  namespaces:
+  namespaces: # Blocks of code
     patterns: [
-      {
-        match: "\\b(namespace)\\b"
-        name: "keyword.other.kotlin"
-      }
       { # Blocks ({...})
         begin: "\\{"
         end: "\\}"
@@ -61,12 +147,11 @@ repository:
     begin: "(?=\\s*(?:class|object|trait))"
     end: "}|(?=$)"
     patterns: [
-      {
+      { # class or object or trait
         begin: "\\b(class|object|trait)\\b"
         beginCaptures:
           1:
             name: "keyword.other.kotlin"
-
         end: "(?=\\n|;|<|{|\\(|:)"
         patterns: [
           {
@@ -79,12 +164,12 @@ repository:
           }
         ]
       }
-      {
+      { # Generics
         begin: "<"
         end: ">"
         patterns: [include: "#generics"]
       }
-      {
+      { # Parameters
         begin: "\\("
         end: "\\)"
         patterns: [include: "#parameters"]
@@ -94,7 +179,6 @@ repository:
         beginCaptures:
           1:
             name: "keyword.operator.declaration.kotlin"
-
         end: "(?={|$)"
         patterns: [
           {
@@ -143,13 +227,13 @@ repository:
         end: "\\)"
         patterns: [include: "#parameters"]
       }
-      {
+      { # Return type
         begin: "(:)"
         beginCaptures:
           1:
             name: "keyword.operator.declaration.kotlin"
         end: "(?={|=|$)"
-        patterns: [include: "#types"] # Return type
+        patterns: [include: "#types"]
       }
       { # Block
         begin: "\\{"
@@ -392,7 +476,6 @@ repository:
         beginCaptures:
           1:
             name: "keyword.operator.declaration.kotlin"
-
         end: "(?=,|\\))"
         patterns: [include: "#expressions"]
       }
@@ -552,36 +635,15 @@ repository:
       }
     ]
 
-  # Comments and documentation
-  comments:
-    patterns: [
-      {
-        begin: "/\\*"
-        captures:
-          0:
-            name: "punctuation.definition.comment.kotlin"
-        end: "\\*/"
-        name: "comment.block.kotlin"
-      }
-      {
-        captures:
-          1:
-            name: "comment.line.double-slash.kotlin"
-          2:
-            name: "punctuation.definition.comment.kotlin"
-        match: "\\s*((//).*$\\n?)"
-      }
-    ]
-  # kdoc:
-
   # Imports and packages
   imports:
     patterns: [
       captures:
-        1:
-          name: "keyword.other.kotlin"
-        2:
-          name: "keyword.other.kotlin"
+          1:
+            name: "keyword.other.kotlin"
+
+          2:
+            name: "keyword.other.kotlin"
       match: "^\\s*(import)\\s+[^ $]+\\s+(as)?"
     ]
   packages:
