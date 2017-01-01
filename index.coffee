@@ -51,7 +51,7 @@ module.exports =
         createSingleWithDescription("sample", "Identifier")
         createSingleWithDescription("see", "Identifier")
         createDoc("author", "Name")
-        createDoc("since", "Version")
+        createDoc("since", "v1.2.3")
         createNone("suppress")
 
         if activatedManually

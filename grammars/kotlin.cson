@@ -77,8 +77,11 @@ repository:
             end: "$"
             patterns: [
               { # Links
-                begin: "\\["
+                begin: "(?:\\[(\\w*)\\])?\\["
                 end: "\\]"
+                captures:
+                  1:
+                    name: "string.kdoc.link.name.kotlin"
                 name: "keyword.control.kdoc.link.kotlin"
                 contentName: "none.kdoc.link.content.kotlin"
                 patterns: [ include: "#types" ]

@@ -2,8 +2,10 @@
 
 Adds syntax highlighting to Kotlin files in the Substance IDE.
 
+![Kotlin Sample](/art/sample.png)
+
 Also provides functionality for KDoc comments
 
-![Kotlin Atom Package Screenshoot](https://raw.githubusercontent.com/alexmt/atom-kotlin-language/master/sample.png)
+![KDoc Sample](/art/kdoc.png)
 
-Originally based on [Atom language package](https://github.com/alexmt/atom-kotlin-language) converted from [Sublime Text package](https://github.com/vkostyukov/kotlin-sublime-package) which has been implemented by [Vladimir Kostyukov](https://github.com/vkostyukov).
+Originally based on [atom-kotlin-language](https://github.com/alexmt/atom-kotlin-language)by [Alexander Matyushentsev](https://github.com/alexmt) converted from [Sublime Text package](https://github.com/vkostyukov/kotlin-sublime-package) which has been implemented by [Vladimir Kostyukov](https://github.com/vkostyukov).
