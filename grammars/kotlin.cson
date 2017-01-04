@@ -18,6 +18,9 @@ repository:
       { include: "#typedefs" }
       { include: "#classes" }
       { include: "#functions" }
+      { include: "#function-call" }
+      { include: "#new-class" }
+      { include: "#lambda" }
       { include: "#variables" }
       { include: "#getters-and-setters" }
       { include: "#expressions" }
@@ -121,14 +124,19 @@ repository:
     ]
 
   # Main code types
-  namespaces: # Blocks of code
+  namespaces: # Blocks ({...})
+    begin: "\\{"
+    end: "\\}"
     patterns: [
-      { # Blocks ({...})
-        begin: "\\{"
-        end: "\\}"
-        patterns: [include: "#statements"]
+      { # Lambda headers (x: Type -> ...)
+        begin: "(?=\\w[\\w\\s,:=<>]*->)"
+        end: "(?=\\s*->)"
+        name: "underline"
+        patterns: [include: "#parameters"]
       }
+      { include: "#statements" }
     ]
+
   typedefs:
     begin: "(?=\\s*(?:type))"
     end: "(?=$)"
@@ -227,7 +235,7 @@ repository:
       }
       { # Parameters
         begin: "\\("
-        end: "\\)"
+        end: "\\)(?!\\s*->)"
         patterns: [include: "#parameters"]
       }
       { # Return type
@@ -248,11 +256,30 @@ repository:
         beginCaptures:
           1:
             name: "keyword.operator.assignment.kotlin"
-
         end: "(?=$)"
         patterns: [include: "#expressions"]
       }
     ]
+  "function-call":
+    begin: "\\b[a-z]\\w*(?:<(\\w+)>)?\\("
+    end: "\\)"
+    captures:
+      1:
+        name: "none.function.call.generics.kotlin"
+    name: "support.function.call.kotlin"
+    patterns: [include: "#function-call-parameters"]
+  lambda:
+    begin: "ayy"
+    end: "(?=lmao)"
+    name: "underline"
+    patterns: [
+      { include: "#statements" }
+    ]
+  "new-class":
+    begin: "\\b[A-Z]\\w*\\("
+    end: "\\)"
+    name: "support.class.new.kotlin"
+    patterns: [include: "#function-call-parameters"]
   variables:
     begin: "(?=\\s*(?:var|val))"
     end: "(?=:|=|$)"
@@ -374,6 +401,9 @@ repository:
         end: "\\)"
         patterns: [include: "#expressions"]
       }
+      { include: "#function-call" }
+      { include: "#new-class" }
+      { include: "#lambda" }
       { include: "#types" }
       { include: "#strings" }
       { include: "#constants" }
@@ -416,28 +446,24 @@ repository:
         beginCaptures:
           1:
             name: "storage.type.buildin.collection.kotlin"
-
         end: ">"
         patterns: [
-          {
-            include: "#types"
-          }
-          {
-            include: "#keywords"
-          }
+          { include: "#types" }
+          { include: "#keywords" }
         ]
       }
       {
         begin: "\\w+<"
         end: ">"
         patterns: [
-          {
-            include: "#types"
-          }
-          {
-            include: "#keywords"
-          }
+          { include: "#types" }
+          { include: "#keywords" }
         ]
+      }
+      {
+        begin: "\\("
+        end: "\\)(?=\\s*->)"
+        patterns: [include:"#parameters"]
       }
       {
         begin: "(#)\\("
@@ -449,18 +475,15 @@ repository:
         patterns: [include: "#expressions"]
       }
       {
+        begin: "::\\b"
+        end: "\\b"
+        match: "::[a-z]\\w+"
+        name: "entity.name.function.kotlin"
+      }
+      {
         begin: "\\{"
         end: "\\}"
         patterns: [include: "#statements"]
-      }
-      {
-        begin: "\\("
-        end: "\\)"
-        patterns: [include: "#types"]
-      }
-      {
-        match: "(->)"
-        name: "keyword.operator.declaration.kotlin"
       }
     ]
   parameters:
@@ -470,7 +493,6 @@ repository:
         beginCaptures:
           1:
             name: "keyword.operator.declaration.kotlin"
-
         end: "(?=,|\\)|=)"
         patterns: [include: "#types"]
       }
@@ -478,9 +500,14 @@ repository:
         begin: "(=)"
         beginCaptures:
           1:
-            name: "keyword.operator.declaration.kotlin"
+            name: "keyword.operator.assignment.kotlin"
         end: "(?=,|\\))"
         patterns: [include: "#expressions"]
+      }
+      {
+        begin: "\\("
+        end: "\\)"
+        patterns: [include: "#parameters"]
       }
       {
         include: "#keywords"
@@ -488,6 +515,18 @@ repository:
       {
         match: "\\w+"
         name: "variable.parameter.function.kotlin"
+      }
+    ]
+  "function-call-parameters":
+    patterns: [
+      { include: "#expressions" }
+      {
+        match: "\\w+(?=\\s*=)"
+        name: "variable.parameter.function.call.kotlin"
+      }
+      {
+        match: "\\w+"
+        name: "none.parameter.function.call.kotlin"
       }
     ]
   strings:
@@ -589,8 +628,16 @@ repository:
         name: "storage.modifier.kotlin"
       }
       {
-        match: "\\b(try|catch|finally|throw)\\b"
+        match: "\\b(try|finally|throw)\\b"
         name: "keyword.control.catch-exception.kotlin"
+      }
+      { # Catch block edge-case
+        begin: "\\b(catch)\\s*\\("
+        end: "\\)"
+        captures:
+          1:
+            name: "keyword.control.catch-exception.kotlin"
+        patterns: [include: "#parameters"]
       }
       {
         match: "\\b(if|then|else|while|for|do|return|when|where|break|continue)\\b"
@@ -599,6 +646,10 @@ repository:
       {
         match: "\\b(in|is|as|assert)\\b"
         name: "keyword.operator.kotlin"
+      }
+      {
+        match: "(->)"
+        name: "storage.type.function.lambda.declaration.kotlin"
       }
       {
         match: "(==|!=|===|!==|<=|>=|<|>)"
