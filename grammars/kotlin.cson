@@ -130,7 +130,7 @@ repository:
     patterns: [
       { # Lambda headers (x: Type -> ...)
         begin: "(?=\\w[\\w\\s,:=<>]*->)"
-        end: "(?=\\s*->)"
+        end: "\\s*(?=->)"
         name: "underline"
         patterns: [include: "#parameters"]
       }
