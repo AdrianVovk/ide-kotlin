@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "main": "index",
   "description": "Adds syntax highlighting to Kotlin files in the Substance IDE",
-  "repository": "https://github.com/AdrianVovk/language-kotlin-ide",
+  "repository": "https://github.com/AdrianVovk/ide-kotlin",
   "license": "MIT",
   "engines": {
     "atom": ">0.50.0"
